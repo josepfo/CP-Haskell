@@ -21,7 +21,7 @@
 %format Right = "i_2"
 %format i1 = "i_1"
 %format i2 = "i_2"
-%format >< = "\times"
+%format >< = "\times"5ttt55tttttttttttttttt5555
 %format >|<  = "\bowtie "
 %format |-> = "\mapsto"
 %format . = "\comp "
@@ -673,7 +673,7 @@ derive as funções |base k| e |loop| que são usadas como auxiliares acima.
 \begin{propriedade}
 Verificação que |bin n k| coincide com a sua especificação (\ref{eq:bin}):
 \begin{code}
-prop3 n k = (bin n k) == (fac n) % (fac k * (fac ((n-k))))
+prop3 (NonNegative n) (NonNegative k) = k <= n ==> (bin n k) == (fac n) % (fac k * (fac ((n-k))))
 \end{code}
 \end{propriedade}
 
@@ -1072,8 +1072,10 @@ outlineQTree = undefined
 \subsection*{Problema 3}
 
 \begin{code}
-base = undefined
-loop = undefined
+untuple ((a,b),(c,d)) = (a,b,c,d)
+tuple (a,b,c,d) = ((a,b),(c,d))
+loop = untuple . (split ((split (mul . swap . p1) (succ . p2 . p1)) . tuple) ((split (mul . swap . p2) (succ . p1 . swap . p2)) . tuple))  
+base = untuple . (split (split one succ) (split one one))
 \end{code}
 
 \subsection*{Problema 4}
