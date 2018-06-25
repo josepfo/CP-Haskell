@@ -1383,8 +1383,8 @@ De seguida são apresentadas as soluções obtidas pelo grupo para cada uma das 
 \subsection{allTransactions}
 
 \quad A função \textbf{allTransactions} calcula a lista de todas as Transactions presentes numa Blockchain, deste modo foi definido um catamorfismo
-de Blockchain que para o caso base de um Block - (MagicNo,(Time,Transactions)) utiliza a função \ensuremath{\p2} para extrair a lista de Transactions.
-\quad Para o caso de um Blockchain - (Block,Blockchain) utiliza de novo a função \ensuremath{\p2} para extrair a lista de Transactions do Block e a função \emph{conc}
+de Blockchain que para o caso base de um Block - (MagicNo,(Time,Transactions)) utiliza a função p2 para extrair a lista de Transactions.
+\quad Para o caso de um Blockchain - (Block,Blockchain) utiliza de novo a função p2 para extrair a lista de Transactions do Block e a função \emph{conc}
 para concatenar a lista de transações ao resultado recursivo do resto da Blockchain.    \newline
 \quad A solução é apresentada a seguir.
 
@@ -1490,8 +1490,8 @@ Esta função elimina as entidades repetidas da lista produzida pelo catamorfism
 \subsection{isValidMagicNr}
 
 \quad A função \textbf{isValidMagicNr} verifica se todos os números mágicos numa blockchain são únicos. Para definir esta função utilizamos
-um catamorfismo \textbf{cataNrMagico} que para o caso base de um Block, aplica um \ensuremath{\conj{\p1}{\Varid{nil}}} de maneira a obter o número mágico desse Block e aplica 
-a função nil ao lado direito do par para obter uma lista vazia, o resultado de \ensuremath{\p1} (número mágico) vai ser posteriormente inserido na lista através da função \emph{cons}.
+um catamorfismo \textbf{cataNrMagico} que para o caso base de um Block, aplica um split p1 nil de maneira a obter o número mágico desse Block e aplica 
+a função nil ao lado direito do par para obter uma lista vazia, o resultado de p1 (número mágico) vai ser posteriormente inserido na lista através da função \emph{cons}.
 \quad Para o caso de um Blockchain, é usada novamente a função \emph{cons} para inserir o número mágico à cabeça da lista resultado recursivo para o 
 resto da Blockchain. Neste momento temos uma lista com todos os números mágicos da Blockchain, é altura de verificar se existem alguns repetidos
 utilizamos para isso uma função \textbf{checkDuplicates} que dada uma lista verifica se existem ou não elementos repetidos.
@@ -1552,15 +1552,15 @@ Através do isomorfismo \textbf{in.out = id} foi possivel obter o out para Block
 %
     \ensuremath{\Varid{outQTree}\comp \alt{\Varid{toCell}}{\Varid{toBlock}}\mathrel{=}\Varid{id}}
 %
-\just\equiv{ Lei 20 Fusão-+ }
+\just\equiv{ Lei da Fusão }
 %
     \ensuremath{\alt{\Varid{outQTree}\comp \Varid{toCell}}{\Varid{outQTree}\comp \Varid{toBlock}}\mathrel{=}\Varid{id}}
 %
-\just\equiv{ Lei 17 Universal-+ }
+\just\equiv{ Universal-+ }
 %
     \ensuremath{\begin{lcbr}\Varid{id}\comp i_1\mathrel{=}\Varid{outQTree}\comp \Varid{toCell}\\\Varid{id}\comp i_2\mathrel{=}\Varid{outQTree}\comp \Varid{toBlock}\end{lcbr}}
 %
-\just\equiv{ Lei  73, Lei 74 }
+\just\equiv{ Lei 1, 73 e 74 }
 %
     \ensuremath{\begin{lcbr}\Varid{outQTree}\;\Varid{toCell}\;(\Varid{a},(\Varid{b},\Varid{c}))\mathrel{=}i_1\;(\Varid{a},(\Varid{b},\Varid{c}))\\\Varid{outQTree}\;\Varid{toBlock}\;(\Varid{a},(\Varid{b},(\Varid{c},\Varid{d})))\mathrel{=}i_2\;(\Varid{a},(\Varid{b},(\Varid{c},\Varid{d})))\end{lcbr}}
 \qed
@@ -1578,22 +1578,6 @@ Através do isomorfismo \textbf{in.out = id} foi possivel obter o out para Block
 O diagrama do catamorfismo de QTree apresenta-se de seguida, e através deste foi possivel deduzir as restantes funções.
 
 \begin{eqnarray*}
-
-\begin{eqnarray*}
-\xymatrix@C=2cm{
-    \ensuremath{\Conid{QTree}\;\Conid{A}}
-           \ar[d]_-{\ensuremath{\Varid{k}\mathrel{=}\Varid{cataQTree}\;\Varid{g}}}
-           \ar[r]^-{out}
-&
-    \ensuremath{(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[d]^-{recQTree (k)}
-\\
-    QTree A
-&
-    \ensuremath{(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[l]^-{g}
-}
-\end{eqnarray*}
 
 \end{eqnarray*}
 
@@ -1623,7 +1607,7 @@ O diagrama do catamorfismo de QTree apresenta-se de seguida, e através deste fo
 \quad Esta função roda 90 graus uma QTree, para tal é necessário alterar a posição dos blocos e o formato das células. 
 Foi feito um catamorfismo de QTree, em que no caso base de uma Cell é usada a função \textbf{rotateCell} que roda 90 graus uma Cell, ou seja,
 troca o elementos do par que define a dimensão da matriz.
-\par Para o caso de um Block troca-se a posição das QTree de maneira a ser feita uma rotação de 90 graus, através da função \textbf{rotateBlock}, 
+\quad Para o caso de um Block troca-se a posição das QTree de maneira a ser feita uma rotação de 90 graus, através da função \textbf{rotateBlock}, 
 A solução encontrada está apresentada de seguida.
 
 \begin{hscode}\SaveRestoreHook
@@ -1663,201 +1647,46 @@ A solução é apresentada de seguida.
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{scaleQTree}\;\Varid{a}\mathrel{=}\Varid{cataQTree}\;\alt{\Varid{scaleCell}\;\Varid{a}}{\Varid{pairToBlock}}{}\<[E]%
 \\
-\>[B]{}\Varid{scaleCell}\;\Varid{mult}\;(\Varid{x},(\Varid{y},\Varid{z}))\mathrel{=}\Conid{Cell}\;\Varid{x}\;(\Varid{mult}\mathbin{*}\Varid{y})\;(\Varid{mult}\mathbin{*}\Varid{z}){}\<[E]%
+\>[B]{}\Varid{scaleCell}\;\Varid{mult}\;(\Varid{a},(\Varid{b},\Varid{c}))\mathrel{=}\Conid{Cell}\;\Varid{a}\;(\Varid{mult}\mathbin{*}\Varid{b})\;(\Varid{mult}\mathbin{*}\Varid{c}){}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-
-O seguinte diagrama demonstra o catamorfismo de QTree utilizado, em que g = \ensuremath{\alt{\Varid{scaleCell}}{\Varid{pairToBlock}}}
-\begin{eqnarray*}
-\xymatrix@C=2cm{
-    \ensuremath{\Conid{Int}\times\Conid{QTree}\;\Conid{A}}
-           \ar[d]_-{\ensuremath{\Varid{k}\mathrel{=}\Varid{cataQTree}\;\Varid{g}}}
-           \ar[r]^-{out}
-&
-    \ensuremath{\Conid{Int}\times(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[d]^{\ensuremath{\Varid{recQTree}\;(\Varid{k})}}
-\\
-    \ensuremath{\Conid{QTree}\;\Conid{A}}
-&
-    \ensuremath{\Conid{Int}\times(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[l]^-{\ensuremath{\Varid{g}}}
-}
-\end{eqnarray*}
-
-
 
 \subsection{invertQTree}
 
-A função invertQTree inverte as cores de uma QTree
+
 
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{invertQTree}\mathrel{=}\Varid{cataQTree}\;\alt{\Varid{invertCell}}{\Varid{pairToBlock}}{}\<[E]%
+\>[B]{}\Varid{invertQTree}\mathrel{=}\Varid{cataQTree}\;\alt{\Varid{invertCell}}{\Varid{toBlock}}{}\<[E]%
 \\
-\>[B]{}\Varid{invertCell}\;((\Conid{PixelRGBA8}\;\Varid{r}\;\Varid{g}\;\Varid{b}\;\Varid{a}),(\Varid{n},\Varid{m}))\mathrel{=}\Conid{Cell}\;(\Conid{PixelRGBA8}\;(\mathrm{255}\mathbin{-}\Varid{r})\;(\mathrm{255}\mathbin{-}\Varid{g})\;(\mathrm{255}\mathbin{-}\Varid{b})\;\Varid{a})\;\Varid{n}\;\Varid{m}{}\<[E]%
+\>[B]{}\Varid{invertCell}\;((\Conid{PixelRGBA8}\;\Varid{r}\;\Varid{g}\;\Varid{b}\;\Varid{a}),(\Varid{x},\Varid{y}))\mathrel{=}\Conid{Cell}\;(\Conid{PixelRGBA8}\;(\mathrm{255}\mathbin{-}\Varid{r})\;(\mathrm{255}\mathbin{-}\Varid{g})\;(\mathrm{255}\mathbin{-}\Varid{b})\;\Varid{a})\;\Varid{x}\;\Varid{y}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-
-O seguinte diagrama demonstra o catamorfismo de QTree utilizado, em que g = \ensuremath{\alt{\Varid{invertCell}}{\Varid{pairToBlock}}}.
-
-\begin{eqnarray*}
-\xymatrix@C=2cm{
-    \ensuremath{\Conid{QTree}\;\Conid{A}}
-           \ar[d]_-{\ensuremath{\Varid{k}\mathrel{=}\Varid{cataQTree}\;\Varid{g}}}
-           \ar[r]^-{out}
-&
-    \ensuremath{(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[d]^-{recQTree (k)}
-\\
-    QTree A
-&
-    \ensuremath{(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[l]^-{g}
-}
-\end{eqnarray*}
-
 
 \subsection{compressQTree}
 
-A função \textbf{compressQTree} corta as folhas da árvore de maneira a reduzir a sua profundidade dado um determinado nivel, para a definição desta
-função foi feito um anamorfismo de QTree.
-A solução obtida é apresentada a seguir.
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{3}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{compressQTree}\;\Varid{a}\;\Varid{b}\mathrel{=}(\Varid{anaQTree}\;\Varid{geneForCompression})\;(\Varid{a},\Varid{b}){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{geneForCompression}\;(\Varid{x},(\Conid{Cell}\;\Varid{a}\;\Varid{b}\;\Varid{c}))\mathrel{=}i_1\;(\Varid{a},(\Varid{b},\Varid{c})){}\<[E]%
-\\
-\>[B]{}\Varid{geneForCompression}\;(\Varid{x},\Varid{block}\mathord{@}(\Conid{Block}\;\Varid{a}\;\Varid{b}\;\Varid{c}\;\Varid{d})){}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\mid \Varid{x}\geq (\Varid{depthQTree}\;\Varid{block})\mathrel{=}i_1\;((\Varid{attributeValue}\;\Varid{block}),((\p1\;(\Varid{sizeQTree}\;\Varid{block})),(\p2\;(\Varid{sizeQTree}\;\Varid{block})))){}\<[E]%
-\\
-\>[B]{}\hsindent{3}{}\<[3]%
-\>[3]{}\mid \Varid{otherwise}\mathrel{=}i_2\;(((\Varid{x},\Varid{a}),((\Varid{x},\Varid{b}),((\Varid{x},\Varid{c}),(\Varid{x},\Varid{d}))))){}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-A função \textbf{attributeValue} é usada para obter um valor qualquer de uma QTree, foi criada para contornar a necessidade de atribuir um valor
-a uma Cell que foi criada a partir de um Block.
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{attributeValue}\mathbin{::}\Conid{QTree}\;\Varid{a}\to \Varid{a}{}\<[E]%
-\\
-\>[B]{}\Varid{attributeValue}\;(\Conid{Cell}\;\Varid{x}\;\Varid{y}\;\Varid{z})\mathrel{=}\Varid{x}{}\<[E]%
-\\
-\>[B]{}\Varid{attributeValue}\;(\Conid{Block}\;\Varid{x}\;\Varid{y}\;\Varid{z}\;\Varid{k})\mathrel{=}\Varid{attributeValue}\;\Varid{x}{}\<[E]%
+\>[B]{}\Varid{compressQTree}\mathrel{=}\bot {}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-
-O gene do anamorfismo é explicado a seguir:
-
-\begin{itemize}
-  \item Caso receba uma Cell, coloca-a do lado esquerdo usando \ensuremath{i_1}, pois chegamos a uma folha da árvore que não deve ser cortada.
-  \item Caso receba um Block, e a sua profundidade é menor ou igual ao nível de compressão
-  dado como argumento, elimina esse bloco convertendo-o para uma Cell e por consequência elimina os seus filhos.
-  De seguida, executa aplica \ensuremath{i_1} para colocar a nova célula do lado esquerdo do par.
-  \item Caso receba um Block, e a sua profundidade é maior que o nível de compressão dado como argumento,
-  coloca-o do lado direito usando \ensuremath{i_2}, sem efetuar qualquer alteração.
-\end{itemize}
-
-O seguinte diagrama demonstra o anamorfismo de QTree utilizado:
-
-\begin{eqnarray*}
-\xymatrix@C=2cm{
-    \ensuremath{\Conid{QTree}\;\Conid{A}}
-&
-    \ensuremath{(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[l]_-{\ensuremath{\Varid{inQTree}}}
-\\
-    \ensuremath{\Conid{Int}\times\Conid{QTree}\;\Conid{A}}
-           \ar[u]^-{\ensuremath{\Varid{f}}}
-           \ar[r]_-{\ensuremath{\Varid{g}}}
-&
-    \ensuremath{(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{Int}\times(\Conid{QTree}\;\Conid{A},(\Conid{Int}\times\Conid{QTree}\;\Conid{A},(\Conid{Int}\times\Conid{QTree}\;\Conid{A},\Conid{Int}\times\Conid{QTree}\;\Conid{A}))))}
-           \ar[u]_-{\ensuremath{\Varid{id}\mathbin{+}\Varid{f}\times\Varid{f}\times\Varid{f}\times\Varid{f}}}
-}
-\end{eqnarray*}
-
-
-
 
 \subsection{outlineQTree}
 
-\quad A função \textbf{outlineQTree} apresenta o contorno de uma malha poligonal explicada no enunciado. Inicialmente é preciso verificar se a célula, após aplicada a função dada, é de valor \emph{True}. 
-Em caso positivo, utiliza-se a função outlineBlock que, dado um tamanho de bloco, procede ao contorno do mesmo. 
-\par O catamorfismo de QTree definido transforma uma QTree na respetiva QTree de Booleanos.
-Após esta conversão, basta utilizar a função \textbf{qt2bm} para converter para uma Matrix, como pedido no enunciado.
-\par A solução obtido é apresentada a seguir.
-
-
-
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{12}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{outlineQTree}\;\Varid{f}\mathrel{=}\Varid{qt2bm}\comp (\Varid{cataQTree}\;\alt{\Varid{outlineCell}\;\Varid{f}}{\Varid{pairToBlock}}){}\<[E]%
-\\
-\>[B]{}\Varid{outlineCell}\;\Varid{f}\;(\Varid{a},(\Varid{b},\Varid{c}))\mathrel{=}\mathbf{if}\;(\Varid{f}\;\Varid{a})\;\mathbf{then}\;(\Varid{outlineBlock}\;\Varid{b}\;\Varid{c})\;\mathbf{else}\;(\Conid{Cell}\;(\Varid{f}\;\Varid{a})\;\Varid{b}\;\Varid{c}){}\<[E]%
-\\
-\>[B]{}\Varid{outlineBlock}\;\Varid{a}\;\Varid{b}\mathrel{=}\Conid{Block}{}\<[E]%
-\\
-\>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}(\Conid{Block}\;(\Conid{Cell}\;\Conid{True}\;\mathrm{1}\;\mathrm{1})\;{}\<[E]%
-\\
-\>[5]{}\hsindent{7}{}\<[12]%
-\>[12]{}(\Conid{Cell}\;\Conid{True}\;(\Varid{a}\mathbin{-}\mathrm{2})\;\mathrm{1})\;{}\<[E]%
-\\
-\>[5]{}\hsindent{7}{}\<[12]%
-\>[12]{}(\Conid{Cell}\;\Conid{True}\;\mathrm{1}\;(\Varid{b}\mathbin{-}\mathrm{2}))\;{}\<[E]%
-\\
-\>[5]{}\hsindent{7}{}\<[12]%
-\>[12]{}(\Conid{Cell}\;\Conid{False}\;(\Varid{a}\mathbin{-}\mathrm{2})\;(\Varid{b}\mathbin{-}\mathrm{2}))){}\<[E]%
-\\
-\>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}(\Conid{Cell}\;\Conid{True}\;\mathrm{1}\;(\Varid{b}\mathbin{-}\mathrm{1})){}\<[E]%
-\\
-\>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}(\Conid{Cell}\;\Conid{True}\;(\Varid{a}\mathbin{-}\mathrm{1})\;\mathrm{1}){}\<[E]%
-\\
-\>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}(\Conid{Cell}\;\Conid{True}\;\mathrm{1}\;\mathrm{1}){}\<[E]%
+\>[B]{}\Varid{outlineQTree}\mathrel{=}\bot {}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
 
-O seguinte diagrama demonstra o catamorfismo de QTree utilizado, em que g = \ensuremath{\alt{\Varid{outLineCell}\;\Varid{f}}{\Varid{pairToBlock}}}
-
-
-\begin{eqnarray*}
-\xymatrix@C=2cm{
-    \ensuremath{\Conid{QTree}\;\Conid{A}}
-           \ar[d]_-{\ensuremath{\Varid{k}\mathrel{=}\Varid{cataQTree}\;\Varid{g}}}
-           \ar[r]^-{out}
-&
-    \ensuremath{\Varid{f}\times(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[d]^-{recQTree (k)}
-\\
-    QTree A
-&
-    \ensuremath{\Varid{f}\times(\Conid{A},(\Conid{Int},\Conid{Int}))\mathbin{+}(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},(\Conid{QTree}\;\Conid{A},\Conid{QTree}\;\Conid{A})))}
-           \ar[l]^-{g}
-}
-\end{eqnarray*}
 
 \subsection*{Problema 3}
-
-\quad Como sugerido no enunciado a abordagem seguida foi fazer o \ensuremath{\conj{\Varid{f}}{\Varid{l}}} e \ensuremath{\conj{\Varid{g}}{\Varid{s}}},
- para isso deduzimos através das definições em pointwise as funções. Finalmente aplicamos a lei da recursividade múltipla para os dois splits obtidos
- e obtemos as definições da base e loop para o for.
 
 \begin{eqnarray*}
 \start
@@ -1958,204 +1787,35 @@ O seguinte diagrama demonstra o catamorfismo de QTree utilizado, em que g = \ens
 
 
 \subsection*{Problema 4}
-De maneira a resolver o problema 4, foi necessário definir as funções que facilitam a manipulação do tipo de dados \emph{FTree}:
-
-\vskip 1em
-
-\emph{\ensuremath{\Varid{inFTree}}} usa os construtores de \emph{\ensuremath{\Conid{FTree}}}, usando uma função auxiliar
-\emph{\ensuremath{\Varid{toComp}}} de maneira a poder converter um par recebido.
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{inFTree}\mathrel{=}\alt{\Conid{Unit}}{\Varid{toComp}}{}\<[E]%
-\\
-\>[B]{}\Varid{toComp}\;(\Varid{a},(\Varid{b},\Varid{c}))\mathrel{=}\Conid{Comp}\;\Varid{a}\;\Varid{b}\;\Varid{c}{}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-\vskip 1em
-
-\emph{\ensuremath{\Varid{outFTree}}} foi derivada de uma maneira semelhante à out das Blockchain (Problema 1):
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{outFTree}\;(\Conid{Unit}\;\Varid{a})\mathrel{=}i_1\;\Varid{a}{}\<[E]%
-\\
-\>[B]{}\Varid{outFTree}\;(\Conid{Comp}\;\Varid{a}\;\Varid{b}\;\Varid{c})\mathrel{=}i_2\;(\Varid{a},(\Varid{b},\Varid{c})){}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-\vskip 1em
-
-As restantes funções são:
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{baseFTree}\;\Varid{f}\;\Varid{g}\;\Varid{h}\mathrel{=}\Varid{g}+(\Varid{f}\times(\Varid{h}\times\Varid{h})){}\<[E]%
-\\
-\>[B]{}\Varid{recFTree}\;\Varid{f}\mathrel{=}\Varid{baseFTree}\;\Varid{id}\;\Varid{id}\;\Varid{f}{}\<[E]%
-\\
-\>[B]{}\Varid{cataFTree}\;\Varid{g}\mathrel{=}\Varid{g}\comp (\Varid{recFTree}\;(\Varid{cataFTree}\;\Varid{g}))\comp \Varid{outFTree}{}\<[E]%
-\\
-\>[B]{}\Varid{anaFTree}\;\Varid{g}\mathrel{=}\Varid{inFTree}\comp (\Varid{recFTree}\;(\Varid{anaFTree}\;\Varid{g}))\comp \Varid{g}{}\<[E]%
-\\
-\>[B]{}\Varid{hyloFTree}\;\Varid{f}\;\Varid{g}\mathrel{=}\Varid{cataFTree}\;\Varid{f}\comp \Varid{anaFTree}\;\Varid{g}{}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-\vskip 1em
-
-A partir da lei 47 (Def-map-cata) do formulário desta unidade curricular ficou definido o bifunctor:
 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{inFTree}\mathrel{=}\bot {}\<[E]%
+\\
+\>[B]{}\Varid{outFTree}\mathrel{=}\bot {}\<[E]%
+\\
+\>[B]{}\Varid{baseFTree}\mathrel{=}\bot {}\<[E]%
+\\
+\>[B]{}\Varid{recFTree}\mathrel{=}\bot {}\<[E]%
+\\
+\>[B]{}\Varid{cataFTree}\mathrel{=}\bot {}\<[E]%
+\\
+\>[B]{}\Varid{anaFTree}\mathrel{=}\bot {}\<[E]%
+\\
+\>[B]{}\Varid{hyloFTree}\mathrel{=}\bot {}\<[E]%
+\\[\blanklineskip]%
 \>[B]{}\mathbf{instance}\;\Conid{Bifunctor}\;\Conid{FTree}\;\mathbf{where}{}\<[E]%
 \\
 \>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}\Varid{bimap}\;\Varid{f}\;\Varid{g}\mathrel{=}\Varid{cataFTree}\;(\Varid{inFTree}\comp (\Varid{baseFTree}\;\Varid{f}\;\Varid{g}\;\Varid{id})){}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-\subsubsection*{generatePTree}
-
-A função \ensuremath{\Varid{generatePTree}} deve gerar, para um dado valor inteiro de entrada, a árvore de Pitágoras de ordem correspondente, composta por quadrados com escalas adequadas a cada nível. Esta função será definida como um anamorfismo.\par
-
-Para este efeito, partimos do diagrama do anamorfismo de \ensuremath{\Conid{FTree}}, uma vez que dada a definição de \ensuremath{\Conid{PTree}} com \ensuremath{\mathbf{type}\;\Conid{PTree}\mathrel{=}\Conid{FTree}\;\Conid{Square}\;\Conid{Square}}, é possível inferir que a estrutura geral será idêntica, sendo apenas definidos os tipos que a \ensuremath{\Conid{FTree}} utiliza. Dada a definição de \ensuremath{\Conid{Square}} com \ensuremath{\mathbf{type}\;\Conid{Square}\mathrel{=}\Conid{Float}}, os tipos A e B abaixo definidos corresponderão, naturalmente, a esse mesmo tipo.
-
-O diagrama é então o seguinte:
-
-\begin{eqnarray*}
-\xymatrix@C=2cm{
-    \ensuremath{\Conid{FTree}\;\Conid{A}\;\mathit B}
-        \ar[l]/_/_-{\ensuremath{\Varid{out}}}
-&
-    \ensuremath{\mathit B\mathbin{+}\Conid{A}\times(\Conid{FTree}\;\Conid{A}\;\mathit B\times\Conid{FTree}\;\Conid{A}\;\mathit B)}
-        \ar[l]/^/_-{\ensuremath{\mathbf{in}}}
+\>[5]{}\Varid{bimap}\mathrel{=}\bot {}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{generatePTree}\mathrel{=}\bot {}\<[E]%
 \\
-    \ensuremath{\mathit C}
-        \ar[u]^-{\ensuremath{\Varid{f}}}
-        \ar[r]_-{\ensuremath{\Varid{g}}}
-&
-    \ensuremath{\mathit B\mathbin{+}\Conid{A}\times(\mathit C\times\mathit C)}
-        \ar[u]_-{\ensuremath{\Varid{id}\mathbin{+}\Varid{id}\times(\Varid{f}\times\Varid{f})}}
-}
-\end{eqnarray*}
-
-Numa primeira tentativa, a ideia para o anamorfismo partia de um valor numérico inteiro de entrada que correspondia à ordem pretendida para a árvore de Pitágoras. Esse inteiro seria diminuído a cada iteração, ocorrendo o caso de paragem para esta computação quando esse valor atingisse o 0.
-
-Este anamorfismo inicial servia-se então do seguinte gene:
-
-\ensuremath{\Varid{genePTree}\mathrel{=}(\Varid{id}\mathbin{+}\conj{\p2}{\conj{\p1}{\p1}})\comp (\Varid{id}\mathbin{+}(\Varid{pred}\times\Varid{id}))\comp (\Varid{id}\mathbin{+}\conj{\Varid{id}}{\Varid{orderMultiplier}})\comp (\Varid{fromIntegral}\mathbin{+}\Varid{id})\comp \Varid{oneToLeft}}
-
-No entanto, o anamorfismo inicialmente sugerido tinha como resultado uma árvore de Pitágoras de dimensões invertidas, o que obrigou a que se partisse do valor de ordem mínimo para a árvore, 0, e se iterasse consecutivamente até ser atingido o valor de ordem pretendido para a árvore a construir.
-
-Com este intuito, surgiu uma segunda versão para o anamorfismo, que define o tipo dos valores de entrada como o tuplo \ensuremath{(\Conid{Int},\Conid{Int})}. O primeiro elemento deste par representa o valor de ordem da iteração atual e o segundo elemento corresponde ao valor de ordem final, que foi definido para a árvore a ser criada.
-
-Para que seja obtido o par acima descrito é necessário aplicar um \emph{split} ao valor inteiro de entrada. Este \emph{split} será dado por \ensuremath{\conj{\underline{\mathrm{0}}}{\Varid{id}}} e quando aplicado ao valor de entrada, permite que a seguir seja aplicado o anamorfismo pretendido, ficando assim definida a função \ensuremath{\Varid{generatePTree}}:
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{generatePTree}\mathrel{=}\Varid{anaFTree}\;\Varid{genePTree}\comp \conj{\underline{\mathrm{0}}}{\Varid{id}}{}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-
-A função \ensuremath{\Varid{genePTree}} será o gene do anamorfismo:
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{genePTree}\mathrel{=}(\Varid{id}+(\Varid{id}\times\conj{\Varid{id}}{\Varid{id}}))\comp (\Varid{id}+(\Varid{id}\times(\succ \times\Varid{id})))\comp (\Varid{id}+\conj{\Varid{orderMultiplier}\comp \p1}{\Varid{id}}){}\<[E]%
-\\
-\>[B]{}\comp ((\Varid{orderMultiplier}\comp \p1)+\Varid{id})\comp \Varid{checkComplete}{}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-
-\begin{eqnarray*}
-\xymatrix@C=2cm{
-    \ensuremath{\Conid{Int}\times\Conid{Int}}
-           \ar[d]|{checkComplete}
-\\
-    \ensuremath{\Conid{Int}\times\Conid{Int}\mathbin{+}\Conid{Int}\times\Conid{Int}}
-           \ar[d]|{\ensuremath{(\Varid{orderMultiplier}\comp \p1)\mathbin{+}\Varid{id}}}
-\\
-    \ensuremath{\Conid{Float}\mathbin{+}\Conid{Int}\times\Conid{Int}}
-           \ar[d]|{\ensuremath{\Varid{id}\mathbin{+}\conj{\Varid{orderMultiplier}\comp \p1}{\Varid{id}}}}
-\\
-    \ensuremath{\Conid{Float}\mathbin{+}\Conid{Float}\times(\Conid{Int}\times\Conid{Int})}
-           \ar[d]|{\ensuremath{\Varid{id}\mathbin{+}\Varid{id}\times(\succ \times\Varid{id})}}
-\\
-    \ensuremath{\Conid{Float}\mathbin{+}\Conid{Float}\times(\Conid{Int}\times\Conid{Int})}
-           \ar[d]|{\ensuremath{\Varid{id}\mathbin{+}\Varid{id}\times\conj{\Varid{id}}{\Varid{id}}}}
-\\
-    \ensuremath{\Conid{Float}\mathbin{+}\Conid{Float}\times((\Conid{Int}\times\Conid{Int})\times(\Conid{Int}\times\Conid{Int}))}
-}
-\end{eqnarray*}
-
-
-
-Serão aqui apresentadas as funções a que o anamorfismo recorre.
-
-Uma delas, \ensuremath{\Varid{orderMultiplier}}, retorna o multiplicador de uma \ensuremath{\Conid{PTree}} para um dado número de ordem. Dado o valor de escala definido pelo enunciado, de $\frac{\sqrt{2}}{2}$, sabe-se então que o valor de escala a aplicar nos quadrados a adicionar numa dada ordem é dado por $(\frac{\sqrt{2}}{2})^o$, sendo \emph{o} o número representante da ordem.
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{orderMultiplier}\mathbin{::}\Conid{Int}\to \Conid{Float}{}\<[E]%
-\\
-\>[B]{}\Varid{orderMultiplier}\;\Varid{a}\mathrel{=}(((\Varid{sqrt}\;\mathrm{2})\mathbin{/}\mathrm{2})\mathbin{\uparrow}\Varid{a}){}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-Por sua vez, a função \ensuremath{\Varid{checkComplete}} executa \ensuremath{i_1} sobre um par de inteiros se estes forem iguais ou \ensuremath{i_2} se forem diferentes. Esta função é útil para a determinação da última iteração do anamorfismo.
-
-A primeira guarda, na qual surge \ensuremath{\Varid{b}\mathbin{<}\mathrm{0}\mathrel{=}i_1\;(\Varid{a},\mathrm{0})}, verifica se o valor em \ensuremath{\Varid{b}} é negativo para evitar um número infinito de iterações quando é pedida uma BTree com ordem negativa. Nesse caso, a ordem assumida toma o valor 0. Nas restantes guardas é efetuado o que havia sido definido em cima.
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{checkComplete}\mathbin{::}(\Conid{Int},\Conid{Int})\to (\Conid{Int},\Conid{Int})+(\Conid{Int},\Conid{Int}){}\<[E]%
-\\
-\>[B]{}\Varid{checkComplete}\;(\Varid{a},\Varid{b}){}\<[E]%
-\\
-\>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}\mid \Varid{b}\mathbin{<}\mathrm{0}\mathrel{=}i_1\;(\Varid{a},\mathrm{0}){}\<[E]%
-\\
-\>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}\mid \Varid{a}\equiv \Varid{b}\mathrel{=}i_1\;(\Varid{a},\Varid{b}){}\<[E]%
-\\
-\>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}\mid \Varid{otherwise}\mathrel{=}i_2\;(\Varid{a},\Varid{b}){}\<[E]%
-\ColumnHook
-\end{hscode}\resethooks
-
-\subsubsection*{drawPTree}
-
-Não foi desenvolvida uma definição para a função \ensuremath{\Varid{drawPTree}}.
-
-\begin{hscode}\SaveRestoreHook
-\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{drawPTree}\mathrel{=}\bot {}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
-
-Verificam-se com isto as propriedades \emph{QuickCheck} relativas a este problema, como se pode verificar de seguida:
-
-\begin{tabbing}\tt
-~\char42{}Main\char62{}~quickCheck~\char40{}prop4a~14\char41{}\\
-\tt ~\char43{}\char43{}\char43{}~OK\char44{}~passed~1~tests\char46{}\\
-\tt ~\char42{}Main\char62{}~quickCheck~\char40{}prop4b~14\char41{}\\
-\tt ~\char43{}\char43{}\char43{}~OK\char44{}~passed~1~tests\char46{}
-\end{tabbing}
 
 
 \subsection*{Problema 5}
@@ -2316,8 +1976,8 @@ A segunda alínea deste problema pretende apenas demonstrar a correção das fun
 	\ensuremath{\Conid{T}\;\Conid{A}}
 		\ar[l]^-{\ensuremath{\Varid{u}}}
         \ar[d]^-{\ensuremath{\Conid{T}\;\Varid{u}}}
-        \ar[dl]^-{\ensuremath{\Varid{id}}}
 \\
+&
 	\ensuremath{\Conid{T}\;\Conid{A}}
 &
 	\ensuremath{\Conid{T}\;(\Conid{T}\;\Conid{A})}

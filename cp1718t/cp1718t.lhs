@@ -1,11 +1,12 @@
 \documentclass[a4paper]{article}
-\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[a4paper,left=2cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
 \usepackage{palatino}
 \usepackage[colorlinks=true,linkcolor=blue,citecolor=blue]{hyperref}
 \usepackage{graphicx}
 \usepackage{cp1718t}
 \usepackage{subcaption}
 \usepackage{adjustbox}
+\usepackage{amsmath}
 %================= lhs2tex=====================================================%
 %include polycode.fmt 
 %format (div (x)(y)) = x "\div " y
@@ -21,7 +22,7 @@
 %format Right = "i_2"
 %format i1 = "i_1"
 %format i2 = "i_2"
-%format >< = "\times"5ttt55tttttttttttttttt5555
+%format >< = "\times"
 %format >|<  = "\bowtie "
 %format |-> = "\mapsto"
 %format . = "\comp "
@@ -105,13 +106,13 @@
 
 \begin{center}\large
 \begin{tabular}{ll}
-\textbf{Grupo} nr. & 99 (preencher)
+\textbf{Grupo} nr. & (37)
 \\\hline
-a11111 & Nome1 (preencher)	
+a78679 & Diana Ribeiro Barbosa
 \\
-a22222 & Nome2 (preencher)	
+a78806 & José Pedro Ferreira de Oliveira	
 \\
-a33333 & Nome3 (preencher)	
+a77377 & Pedro Henrique Moreira Gomes Fernandes	
 \end{tabular}
 \end{center}
 
@@ -973,42 +974,155 @@ outras funções auxiliares que sejam necessárias.
 
 \subsection*{Problema 1}
 
+De maneira a iniciar a resolução do problema foram definidas as seguintes funções:
+
 \begin{code}
 inBlockchain = either Bc Bcs
+\end{code}
+
+
+
+Através do isomorfismo \textbf{in.out = id} foi possivel obter o out para Blockchain de acordo com a prova seguinte:
+
+\begin{eqnarray*}
+\start
+    |out . in = id|
+%
+\just\equiv{ Definição de in para Blockchain }
+%
+    |out . (either Bc Bcs) = id|
+%
+\just\equiv{ Lei 20 Fusão-+ }
+%
+    |either (out . Bc) (out . Bcs) = id|
+%
+\just\equiv{ Lei 27 Eq-+ }
+%
+    |lcbr(
+		out . Bc = i1
+	)(
+		out . Bcs = i2
+	)|
+%
+\just\equiv{ Lei 73, Lei 74 }
+%
+    |lcbr(
+		out (Bc a) = i1 a
+	)(
+		out (Bcs (a, b)) = i2 (a, b)
+	)|
+\qed
+\end{eqnarray*}
+
+\begin{code}
 outBlockchain (Bc a) = i1 a
 outBlockchain (Bcs (a,b)) = i2 (a,b) 
+\end{code}
+
+O diagrama do catamorfismo de Blockchain apresenta-se de seguida, e através deste foi possivel deduzir as restantes funções.
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Blockchain|
+           \ar[d]_-{|k = cataA(g)|}
+           \ar[r]^-{out}
+&
+    |Block + Block >< Blockchain|
+           \ar[d]^-{|id + id >< k|}
+\\
+    A
+&
+    |Block + Block >< A|
+           \ar[l]^-{g}
+}
+\end{eqnarray*}
+
+\begin{code}
+
 recBlockchain f = id -|- (id >< f)    
 cataBlockchain g = g . (recBlockchain (cataBlockchain g)) . outBlockchain      
 anaBlockchain g = inBlockchain . (recBlockchain(anaBlockchain g)) . g
 hyloBlockchain f g = cataBlockchain f . anaBlockchain g
 
--- alinea 1 -- DONE!
+\end{code}
+
+De seguida são apresentadas as soluções obtidas pelo grupo para cada uma das alíneas do problema 1.
+
+\subsection{allTransactions}
+
+\quad A função \textbf{allTransactions} calcula a lista de todas as Transactions presentes numa Blockchain, deste modo foi definido um catamorfismo
+de Blockchain que para o caso base de um Block - (MagicNo,(Time,Transactions)) utiliza a função |p2| para extrair a lista de Transactions.
+\quad Para o caso de um Blockchain - (Block,Blockchain) utiliza de novo a função |p2| para extrair a lista de Transactions do Block e a função \emph{conc}
+para concatenar a lista de transações ao resultado recursivo do resto da Blockchain.    \newline
+\quad A solução é apresentada a seguir.
+
+
+\begin{code}
+
 allTransactions = cataBlockchain (either (p2 . p2) (conc . ((p2.p2) >< id)))
 
--- alina 2 -- DONE!
-ledger = uncurry zip . (split p1 (uncurry map . swap)) . (id >< cataSaldo) . (split cataEntities id) . allTransactions
+\end{code}
 
 
--- catamorfismo que calcula o saldo a partir da lista de transactions e da lista das entidades
+\subsection{Ledger}
+
+A função \emph{Ledger} calcula o valor que cada entidade detém numa Blockchain, para defini-la utilizamos três catamorfismos e um conjunto
+de funções auxiliares que serão descritas mais abaixo. O processo é seguinte:
+\begin{itemize}
+\item Obter a lista de transações através do catamorfismo \textbf{allTransactions}
+\item Obter um par com a lista das entidades (obtida através da função \textbf{getEntities}) e a lista das transações
+\item Aplicar um catamorfismo \textbf{cataSaldo} à lista das transações, obtendo um par da lista das entidades e do catamorfismo aplicado às transações
+\item Obter um par com a lista das entidades e uma lista com o saldo de cada entidade
+\item Obter uma lista de pares (Entidade,Saldo).
+\end{itemize}
+A solução é apresentada de seguida:
+
+\begin{code}
+ledger = uncurry zip . (split p1 (uncurry map . swap)) . (id >< cataSaldo) . (split getEntities id) . allTransactions
+\end{code}
+
+
+
+O catamorfismo de listas \textbf{cataSaldo} dada uma lista de transações e uma entidade calcula o saldo dessa entidade.
+
+
+\begin{code}
+
 cataSaldo :: [Transaction] -> String -> Int
 cataSaldo transactions entity = (cataList (either (const 0) (addInt . ((getSaldo entity) >< id)) )) transactions
 
--- função que dada uma entidade e uma transação devolve o valor que perdeu ou ganhou essa entidade
+\end{code}
+
+
+\begin{code}
 getSaldo :: String -> Transaction -> Int
 getSaldo e (a,(b,c)) | e == a = -b
                      | e == c = b
                      | otherwise = 0
 
--- usamos esta addInt porque a add normal trabalha com Integer
+\end{code}
+
+Foi utilizada a função addInt porque a add pré-definida trabalha com Integer
+
+\begin{code}
+
 addInt :: (Int,Int) -> Int
 addInt (a,b) = a + b
 
+\end{code}
+
+O catamorfismo de listas \textbf{cataEntities} que dá a lista de todas as entidades presentes em todas as transações
+
+\begin{code}
 
 
-
--- catamorfismo sobre lista de transações para obter todas as entidades
 cataEntities = cataList ( either nil (conc . ((pairToList . split p1 (p2 . p2)) >< id)) )
 
+\end{code}
+
+Esta função elimina as entidades repetidas da lista produzida pelo catamorfismo anterior através da função \textbf{rmDuplicates}.
+
+\begin{code}
 getEntities :: (Ord a) => [(a,(b,a))] -> [a]
 getEntities = rmDuplicates . cataEntities
 
@@ -1019,90 +1133,803 @@ pairToList :: (a,a) -> [a]
 pairToList (x,y) = [x,y]
 
 
+\end{code}
 
+\subsection{isValidMagicNr}
 
--- alinea 3 -- DONE!
+\quad A função \textbf{isValidMagicNr} verifica se todos os números mágicos numa blockchain são únicos. Para definir esta função utilizamos
+um catamorfismo \textbf{cataNrMagico} que para o caso base de um Block, aplica um |split (p1) (nil)| de maneira a obter o número mágico desse Block e aplica 
+a função nil ao lado direito do par para obter uma lista vazia, o resultado de |p1| (número mágico) vai ser posteriormente inserido na lista através da função \emph{cons}.
+\quad Para o caso de um Blockchain, é usada novamente a função \emph{cons} para inserir o número mágico à cabeça da lista resultado recursivo para o 
+resto da Blockchain. Neste momento temos uma lista com todos os números mágicos da Blockchain, é altura de verificar se existem alguns repetidos
+utilizamos para isso uma função \textbf{checkDuplicates} que dada uma lista verifica se existem ou não elementos repetidos.
+\quad A solução é apresentada de seguida.
+
+\begin{code}
+
 isValidMagicNr = checkDuplicates . cataNrMagico
 
 -- catamorfismo que transforma um blockchain 
 cataNrMagico :: Blockchain -> [String]
-cataNrMagico = cataBlockchain (either (cons . (split (p1.id) nil)) (cons . (p1 >< id)))
+cataNrMagico = cataBlockchain (either (cons . (split p1 nil)) (cons . (p1 >< id)))
 
 -- verifica os se existem número mágicos repetidos
 checkDuplicates :: (Ord a) => [a] -> Bool
 checkDuplicates x = ((rmDuplicates x) == x)
 
-
---------- TESTES PARA BLOCKCHAIN --------------
-
-
--- teste para transactions
-transactions :: [Transaction]
-transactions = [("Marcos",(2,"Ze")),("Sergio",(5,"Vitor")),("Ze",(2,"Marcos"))]
-
--- blockchain de teste
-block1 = ("1234", (177777, [("Marcos", (200, "Tarracho")), ("Antonio", (200, "Joao")), ("Tarracho", (200, "Marcos")), ("Marcos", (200, "Tarracho"))]))
-block2 = ("6789", (177888, [("Marcos", (200, "Tarracho")), ("Antonio", (200, "Joao"))]))
-testBlockchain = Bcs ( block1, Bc block2)
-
 \end{code}
+
+
+
 
 
 \subsection*{Problema 2}
 
+\quad De maneira a iniciar a resolução do problema 2, foi necessário primeiro definir funções que nos permitam criar catamorfismos e anamorfismos
+para a estrutura de dados do problema em causa. 
+
 \begin{code}
-inQTree = undefined
-outQTree = undefined
-baseQTree = undefined
-recQTree = undefined
-cataQTree = undefined
-anaQTree = undefined
-hyloQTree = undefined
+
+pairToCell (a,(b,c)) = Cell a b c
+pairToBlock (a,(b,(c,d))) = Block a b c d
+
+\end{code}
+
+
+\begin{code}
+
+inQTree = either pairToCell pairToBlock
+
+\end{code}
+
+Através do isomorfismo \textbf{in.out = id} foi possivel obter o out para Blockchain de acordo com a prova seguinte:
+
+\begin{eqnarray*}
+\start
+    |outQTree . inQTree = id|
+%
+\just\equiv{ Definição de inQTree }
+%
+    |outQTree . (either (toCell) (toBlock)) = id|
+%
+\just\equiv{ Lei 20 Fusão-+ }
+%
+    |either (outQTree . toCell) (outQTree . toBlock) = id|
+%
+\just\equiv{ Lei 17 Universal-+ }
+%
+    |lcbr(
+		id . i1 = outQTree . toCell
+	)(
+		id . i2 = outQTree . toBlock
+	)|
+%
+\just\equiv{ Lei  73, Lei 74 }
+%
+    |lcbr(
+		outQTree toCell (a, (b, c)) = i1 (a, (b, c))
+	)(
+		outQTree toBlock (a, (b, (c, d))) = i2 (a, (b, (c, d)))
+	)|
+\qed
+\end{eqnarray*}
+
+\begin{code}
+outQTree (Cell a b c) = i1 (a,(b,c))
+outQTree (Block a b c d) = i2 (a,(b,(c,d)))
+\end{code}
+
+O diagrama do catamorfismo de QTree apresenta-se de seguida, e através deste foi possivel deduzir as restantes funções.
+
+\begin{eqnarray*}
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |QTree A|
+           \ar[d]_-{|k = cataQTree g|}
+           \ar[r]^-{out}
+&
+    |(A,(Int,Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[d]^-{recQTree (k)}
+\\
+    QTree A
+&
+    |(A,(Int,Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[l]^-{g}
+}
+\end{eqnarray*}
+
+\end{eqnarray*}
+
+\begin{code}
+baseQTree g f = (g >< id) -|- (f >< (f >< (f >< f)))
+recQTree f = baseQTree id f
+cataQTree g = g . (recQTree (cataQTree g)) . outQTree
+anaQTree g = inQTree . (recQTree (anaQTree g)) . g 
+hyloQTree g1 g2 = cataQTree g1 . anaQTree g2
 
 instance Functor QTree where
-    fmap = undefined
+    fmap f = cataQTree (inQTree . (baseQTree f id))
 
-rotateQTree = undefined
-scaleQTree = undefined
-invertQTree = undefined
-compressQTree = undefined
-outlineQTree = undefined
 \end{code}
+
+\subsection{rotateQTree}
+
+\quad Esta função roda 90 graus uma QTree, para tal é necessário alterar a posição dos blocos e o formato das células. 
+Foi feito um catamorfismo de QTree, em que no caso base de uma Cell é usada a função \textbf{rotateCell} que roda 90 graus uma Cell, ou seja,
+troca o elementos do par que define a dimensão da matriz.
+\par Para o caso de um Block troca-se a posição das QTree de maneira a ser feita uma rotação de 90 graus, através da função \textbf{rotateBlock}, 
+A solução encontrada está apresentada de seguida.
+
+\begin{code}
+rotateQTree = cataQTree (either rotateCell rotateBlock)
+rotateCell (a,(b,c)) = Cell a c b
+rotateBlock (a, (b, (c,d))) = Block c a d b
+\end{code}
+
+Assumindo que A, B, C e D são QTree que pertencem a um bloco a rotação de 90 graus leva a um reposionamento das QTree de acordo com o diagrama seguinte.
+
+
+\[
+\begin{bmatrix}
+    A & B \\
+    C & D \\  
+\end{bmatrix}
+=
+\begin{bmatrix}
+    C & A \\
+    D & B \\
+\end{bmatrix}
+\]
+
+
+\subsection{scaleQTree}
+
+A função scaleQTree recalcula a dimensão de uma QTree de acordo com um fator, para tal é necessário multiplicar os elementos que definem o tamanho de cada célula por esse fator.
+A solução é apresentada de seguida.
+
+\begin{code}
+
+scaleQTree a = cataQTree (either (scaleCell a) (pairToBlock))
+scaleCell mult (x,(y,z)) = Cell x (mult * y) (mult * z)
+
+\end{code}
+
+O seguinte diagrama demonstra o catamorfismo de QTree utilizado, em que g = |either scaleCell pairToBlock|
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Int >< QTree A|
+           \ar[d]_-{|k = cataQTree g|}
+           \ar[r]^-{out}
+&
+    |Int ><  (A, (Int, Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[d]^{|recQTree (k)|}
+\\
+    |QTree A|
+&
+    |Int >< (A, (Int, Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[l]^-{|g|}
+}
+\end{eqnarray*}
+
+
+
+\subsection{invertQTree}
+
+A função invertQTree inverte as cores de uma QTree
+
+
+\begin{code}
+invertQTree = cataQTree (either (invertCell) (pairToBlock))
+invertCell ((PixelRGBA8 r g b a),(n,m)) = Cell (PixelRGBA8 (255-r) (255-g) (255-b) a) n m
+\end{code}
+
+O seguinte diagrama demonstra o catamorfismo de QTree utilizado, em que g = |either invertCell pairToBlock|.
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |QTree A|
+           \ar[d]_-{|k = cataQTree g|}
+           \ar[r]^-{out}
+&
+    |(A,(Int,Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[d]^-{recQTree (k)}
+\\
+    QTree A
+&
+    |(A,(Int,Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[l]^-{g}
+}
+\end{eqnarray*}
+
+
+\subsection{compressQTree}
+
+A função \textbf{compressQTree} corta as folhas da árvore de maneira a reduzir a sua profundidade dado um determinado nivel, para a definição desta
+função foi feito um anamorfismo de QTree.
+A solução obtida é apresentada a seguir.
+
+\begin{code}
+compressQTree a b = (anaQTree geneForCompression) (a, b)
+
+geneForCompression (x, (Cell a b c)) = i1 (a, (b, c))
+geneForCompression (x, block@(Block a b c d))
+  | x >= (depthQTree block) = i1 ((attributeValue block), ((fst (sizeQTree block)), (snd (sizeQTree block))))
+  | otherwise = i2 (((x, a), ((x, b), ((x, c), (x, d)))))
+  
+\end{code}
+
+A função \textbf{attributeValue} é usada para obter um valor qualquer de uma QTree, foi criada para contornar a necessidade de atribuir um valor
+a uma Cell que foi criada a partir de um Block.
+
+\begin{code}
+attributeValue :: QTree a -> a
+attributeValue (Cell x y z) = x
+attributeValue (Block x y z k) = attributeValue x
+\end{code}
+
+O gene do anamorfismo é explicado a seguir:
+
+\begin{itemize}
+  \item Caso receba uma Cell, coloca-a do lado esquerdo usando |i1|, pois chegamos a uma folha da árvore que não deve ser cortada.
+  \item Caso receba um Block, e a sua profundidade é menor ou igual ao nível de compressão
+  dado como argumento, elimina esse bloco convertendo-o para uma Cell e por consequência elimina os seus filhos.
+  De seguida, executa aplica |i1| para colocar a nova célula do lado esquerdo do par.
+  \item Caso receba um Block, e a sua profundidade é maior que o nível de compressão dado como argumento,
+  coloca-o do lado direito usando |i2|, sem efetuar qualquer alteração.
+\end{itemize}
+
+O seguinte diagrama demonstra o anamorfismo de QTree utilizado:
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |QTree A|
+&
+    |(A, (Int, Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[l]_-{|inQTree|}
+\\
+    |Int >< QTree A|
+           \ar[u]^-{|f|}
+           \ar[r]_-{|g|}
+&
+    |(A, (Int, Int)) + (Int >< (QTree A, (Int >< QTree A, (Int >< QTree A, Int >< QTree A))))|
+           \ar[u]_-{|id + f >< f >< f >< f|}
+}
+\end{eqnarray*}
+
+
+
+
+\subsection{outlineQTree}
+
+\quad A função \textbf{outlineQTree} apresenta o contorno de uma malha poligonal explicada no enunciado. Inicialmente é preciso verificar se a célula, após aplicada a função dada, é de valor \emph{True}. 
+Em caso positivo, utiliza-se a função outlineBlock que, dado um tamanho de bloco, procede ao contorno do mesmo. 
+\par O catamorfismo de QTree definido transforma uma QTree na respetiva QTree de Booleanos.
+Após esta conversão, basta utilizar a função \textbf{qt2bm} para converter para uma Matrix, como pedido no enunciado.
+\par A solução obtido é apresentada a seguir.
+
+
+
+\begin{code}
+outlineQTree f = qt2bm . (cataQTree (either (outlineCell f) (pairToBlock)))
+outlineCell f (a,(b,c)) = if (f a) then (outlineBlock b c) else (Cell (f a) b c)
+outlineBlock a b = Block
+    (Block (Cell True 1 1)
+           (Cell True (a-2) 1)
+           (Cell True 1 (b-2))
+           (Cell False (a-2) (b-2)))
+    (Cell True 1 (b-1))
+    (Cell True (a-1) 1)
+    (Cell True 1 1)
+\end{code}
+
+
+O seguinte diagrama demonstra o catamorfismo de QTree utilizado, em que g = |either (outLineCell f) pairToBlock|
+
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |QTree A|
+           \ar[d]_-{|k = cataQTree g|}
+           \ar[r]^-{out}
+&
+    |f >< (A,(Int,Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[d]^-{recQTree (k)}
+\\
+    QTree A
+&
+    |f >< (A,(Int,Int)) + (QTree A, (QTree A, (QTree A, QTree A)))|
+           \ar[l]^-{g}
+}
+\end{eqnarray*}
 
 \subsection*{Problema 3}
 
+\quad Como sugerido no enunciado a abordagem seguida foi fazer o |split f l| e |split g s|,
+ para isso deduzimos através das definições em pointwise as funções. Finalmente aplicamos a lei da recursividade múltipla para os dois splits obtidos
+ e obtemos as definições da base e loop para o for.
+
+\begin{eqnarray*}
+\start
+        |lcbr(
+		        fk 0 = 1
+	    )(
+		        fk (d+1) = (d + k + 1) * fk d
+    )|
+    |lcbr(
+		        lk 0 = 1
+    )(
+		        lk (d+1) = lk d+1
+	    )|
+%
+\just\equiv{ Lei 73 (x2), Lei 74 (x4), Definiçao de (d+k+1), Lei 76 (x2), Lei 78 }
+%
+    |lcbr(
+		fk . (const 0) = const 1
+	)(
+		fk . succ = mul . (split lk fk)
+    )|
+    |lcbr(
+		lk . (const 0) = const (k+1)
+    )(
+		lk . succ = succ . lk
+	)|
+%
+\just\equiv{ Lei 27 eq+  }
+%
+    |lcbr(
+		either (fk . (const 0)) (fk . succ) = either (const 1) (mul . (split lk fk))
+	)(
+		either (lk . (const 0)) (lk . succ) = either (const (k+1)) (succ . lk)
+	)|
+%
+\just\equiv{ Definição de in dos naturais, Lei Fusão-+ (x2), Lei Absorção-+ (x2) }
+%
+    |lcbr(
+		fk . in = (either (const 1) mul) . (id + split lk fk)
+	)(
+		lk . in = (either (const (k+1)) succ) . (id + lk)
+	)|
+%
+\just\equiv{ Definição de swap e Lei 7 Cancelamento-x}
+%
+    |lcbr(
+		fk . in = (either (const 1) mul . swap) . (id + split fk lk)
+	)(
+		lk . in = (either (const (k+1)) (succ . p2) . (id + split fk lk)
+	)|
+%
+\just\equiv{ Lei 50 Fokkinga }
+%
+	|split fk lk = cataA (split (either (const 1) (mul . swap)) (either (const (k+1)) (succ . p2)))|
+\qed
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\start
+    |lcbr(
+		g 0 = 1
+	)(
+		g (d+1) = (d + 1) * g d
+    )|
+    |lcbr(
+		s 0 = 1
+    )(
+		s (d+1) = s d+1
+	)|
+%
+\just\equiv{ Lei 73 (x2), Lei 74 (x4), Lei 76 (x2), Definição de (d+1) e Lei 78 }
+%
+    |lcbr(
+		g . (const 0) = const 1
+	)(
+		g . succ = mul . (split s g)
+    )|
+    |lcbr(
+		s . (const 0) = const 1
+    )(
+		s . succ = succ . s
+	)|
+%
+\just\equiv{ Lei 27 eq-+  }
+%
+    |lcbr(
+		either (g . (const 0)) (g . succ) = either (const 1) (mul . (split s g))
+	)(
+		either (s . (const 0)) (s . succ) = either (const 1) (succ . s)
+	)|
+%
+\just\equiv{ Definição de in dos naturais, Lei Fusão (x2), Lei Absorção (x2) }
+%
+    |lcbr(
+		g . in = (either (const 1) mul) . (id + split s g)
+	)(
+		s . in = (either (const (1)) succ . p1) . (id + split s g)
+	)|
+%
+\just\equiv{ Propriedade do swap (x2) e Lei 7 Cancelamento-x  }
+%
+    |lcbr(
+		g . in = (either (const 1) (mul . swap)) . (id + split g s)
+	)(
+		s . in = (either (const 1) (succ . p1 . swap) . (id + split g s)
+	)|
+%
+\just\equiv{ Lei 50 Fokkinga  }
+%
+	|split g s = cataA (split (either (const 1) (mul . swap)) (either (const 1) (succ . p1 . swap)))|
+\qed
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\start
+|lcbr(
+		cataA i = cataA (split (either (const 1) (mul . swap)) (either (const (k+1)) (succ . p2)))
+	)(
+        cataA j = cataA (split (either (const 1) (mul . swap)) (either (const 1) (succ . p1 . swap)))
+    )|
+%
+\just\equiv{ Lei 51 Banana-split }
+%
+	|split (cataA i) (cataA j) = cataA (((split (either (const 1) (mul . swap)) (either (const (k+1)) (succ . p2))) >< (split (either (const 1) (mul . swap)) (either (const 1) (succ . p1 . swap))))
+    
+    . split (F p1) (F p2))|
+%
+\just\equiv{ Lei da troca  }
+%
+    |split (cataA i) (cataA j) = cataA ((either (split (const 1) (const (k+1))) (split (mul . swap) (succ . p2))) >< (either (split (const 1) (const 1)) (split (mul . swap) (succ . p1 . swap)))
+
+    . split (F p1) (F p2))|
+%
+\just\equiv{ Lei da troca (x2), Def de funtor (F p1) e (F p2), Lei 75 Definição Constante, 3.90 apontamentos}
+%
+    |split (cataA i) (cataA j) = cataA ( split ( (either (split (const 1) (const (k+1))) (split (mul . swap) (succ . p2))) . F p1 ) ( (either (split (const 1) (const (k+1))) (split (mul . swap) (succ . p2))) . F p2 )
+    )|
+%
+\just\equiv{ Lei da troca }
+%
+    |split (cataA i) (cataA j) = cataA ( either (split (split (const 1) (const (k+1))) (split (const 1) (const 1))) (split (split (mul . swap) (succ . p2) . p1) (split (mul . swap) (succ . p1 . swap) . p2)) )
+    )|
+%
+\just\equiv{ Definição for b i }
+%
+    |lcbr(
+		b = (split (split (mul . swap) (succ . p2) . p1) (split (mul . swap) (succ . p1 . swap) . p2))
+	)(
+		i = (split (split (const 1) (const (k+1))) (split (const 1) (const 1)))
+	)|
+\qed
+\end{eqnarray*}
+
+
+
 \begin{code}
-untuple ((a,b),(c,d)) = (a,b,c,d)
-tuple (a,b,c,d) = ((a,b),(c,d))
+untuple ((i,j),(k,z)) = (i,j,k,z)
+tuple (i,j,k,z) = ((i,j),(k,z))
 loop = untuple . (split ((split (mul . swap . p1) (succ . p2 . p1)) . tuple) ((split (mul . swap . p2) (succ . p1 . swap . p2)) . tuple))  
 base = untuple . (split (split one succ) (split one one))
 \end{code}
 
+
 \subsection*{Problema 4}
+De maneira a resolver o problema 4, foi necessário definir as funções que facilitam a manipulação do tipo de dados \emph{FTree}:
+
+\vskip 1em
+
+\emph{|inFTree|} usa os construtores de \emph{|FTree|}, usando uma função auxiliar
+\emph{|toComp|} de maneira a poder converter um par recebido.
 
 \begin{code}
-inFTree = undefined
-outFTree = undefined
-baseFTree = undefined
-recFTree = undefined
-cataFTree = undefined
-anaFTree = undefined
-hyloFTree = undefined
+inFTree = either Unit toComp
+toComp (a, (b, c)) = Comp a b c
+\end{code}
 
+\vskip 1em
+
+\emph{|outFTree|} foi derivada de uma maneira semelhante à out das Blockchain (Problema 1):
+
+\begin{code}
+outFTree (Unit a) = i1 a
+outFTree (Comp a b c) = i2 (a, (b, c))
+\end{code}
+
+\vskip 1em
+
+As restantes funções são:
+
+\begin{code}
+baseFTree f g h = g -|- (f >< (h >< h))
+recFTree f = baseFTree id id f
+cataFTree g = g . (recFTree (cataFTree g)) . outFTree
+anaFTree g = inFTree . (recFTree (anaFTree g)) . g
+hyloFTree f g = cataFTree f . anaFTree g
+\end{code}
+
+\vskip 1em
+
+A partir da lei 47 (Def-map-cata) do formulário desta unidade curricular ficou definido o bifunctor:
+
+\begin{code}
 instance Bifunctor FTree where
-    bimap = undefined
+    bimap f g = cataFTree (inFTree . (baseFTree f g id))
+\end{code}
 
-generatePTree = undefined
+\subsubsection*{generatePTree}
+
+A função |generatePTree| deve gerar, para um dado valor inteiro de entrada, a árvore de Pitágoras de ordem correspondente, composta por quadrados com escalas adequadas a cada nível. Esta função será definida como um anamorfismo.\par
+
+Para este efeito, partimos do diagrama do anamorfismo de |FTree|, uma vez que dada a definição de |PTree| com |type PTree = FTree Square Square|, é possível inferir que a estrutura geral será idêntica, sendo apenas definidos os tipos que a |FTree| utiliza. Dada a definição de |Square| com |type Square = Float|, os tipos A e B abaixo definidos corresponderão, naturalmente, a esse mesmo tipo.
+
+O diagrama é então o seguinte:
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |FTree A B|
+        \ar[l]/_/_-{|out|}
+&
+    |B + A >< (FTree A B >< FTree A B)|
+        \ar[l]/^/_-{|in|}
+\\
+    |C|
+        \ar[u]^-{|f|}
+        \ar[r]_-{|g|}
+&
+    |B + A >< (C >< C)|
+        \ar[u]_-{|id + id >< (f >< f)|}
+}
+\end{eqnarray*}
+
+Numa primeira tentativa, a ideia para o anamorfismo partia de um valor numérico inteiro de entrada que correspondia à ordem pretendida para a árvore de Pitágoras. Esse inteiro seria diminuído a cada iteração, ocorrendo o caso de paragem para esta computação quando esse valor atingisse o 0.
+
+Este anamorfismo inicial servia-se então do seguinte gene:
+
+|genePTree = (id + (split p2 (split p1 p1))) . (id + (pred >< id)) . (id + (split id orderMultiplier)) . (fromIntegral + id) . oneToLeft|
+
+No entanto, o anamorfismo inicialmente sugerido tinha como resultado uma árvore de Pitágoras de dimensões invertidas, o que obrigou a que se partisse do valor de ordem mínimo para a árvore, 0, e se iterasse consecutivamente até ser atingido o valor de ordem pretendido para a árvore a construir.
+
+Com este intuito, surgiu uma segunda versão para o anamorfismo, que define o tipo dos valores de entrada como o tuplo |(Int, Int)|. O primeiro elemento deste par representa o valor de ordem da iteração atual e o segundo elemento corresponde ao valor de ordem final, que foi definido para a árvore a ser criada.
+
+Para que seja obtido o par acima descrito é necessário aplicar um \emph{split} ao valor inteiro de entrada. Este \emph{split} será dado por |split (const 0) id| e quando aplicado ao valor de entrada, permite que a seguir seja aplicado o anamorfismo pretendido, ficando assim definida a função |generatePTree|:
+
+\begin{code}
+generatePTree = anaFTree genePTree . (split (const 0) id)
+\end{code}
+
+
+A função |genePTree| será o gene do anamorfismo:
+
+\begin{code}
+genePTree = (id -|- (id >< (split id id))) . (id -|- (id >< (succ >< id))) . (id -|- (split (orderMultiplier . p1) id)) 
+ . ((orderMultiplier . p1) -|- id) . checkComplete
+\end{code}
+
+
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Int >< Int|
+           \ar[d]||{checkComplete}
+\\
+    |Int >< Int + Int >< Int|
+           \ar[d]||{|(orderMultiplier . p1) + id|}
+\\
+    |Float + Int >< Int|
+           \ar[d]||{|id + (split (orderMultiplier . p1) id)|}
+\\
+    |Float + Float >< (Int >< Int) |
+           \ar[d]||{|id + id >< (succ >< id)|}
+\\
+    |Float + Float >< (Int >< Int)|
+           \ar[d]||{|id + id >< (split id id)|}
+\\
+    |Float + Float >< ((Int >< Int) >< (Int >< Int))|
+}
+\end{eqnarray*}
+
+
+
+Serão aqui apresentadas as funções a que o anamorfismo recorre.
+
+Uma delas, |orderMultiplier|, retorna o multiplicador de uma |PTree| para um dado número de ordem. Dado o valor de escala definido pelo enunciado, de $\frac{\sqrt{2}}{2}$, sabe-se então que o valor de escala a aplicar nos quadrados a adicionar numa dada ordem é dado por $(\frac{\sqrt{2}}{2})^o$, sendo \emph{o} o número representante da ordem.
+
+\begin{code}
+orderMultiplier :: Int -> Float
+orderMultiplier a = (((sqrt 2) / 2) ^ a)
+\end{code}
+
+Por sua vez, a função |checkComplete| executa |i1| sobre um par de inteiros se estes forem iguais ou |i2| se forem diferentes. Esta função é útil para a determinação da última iteração do anamorfismo.
+
+A primeira guarda, na qual surge |b < 0 = i1 (a, 0)|, verifica se o valor em |b| é negativo para evitar um número infinito de iterações quando é pedida uma BTree com ordem negativa. Nesse caso, a ordem assumida toma o valor 0. Nas restantes guardas é efetuado o que havia sido definido em cima.
+
+\begin{code}
+checkComplete :: (Int, Int) -> Either (Int, Int) (Int, Int)
+checkComplete (a, b)
+    | b < 0 = i1 (a, 0)
+    | a == b = i1 (a, b)
+    | otherwise = i2 (a, b)
+\end{code}
+
+\subsubsection*{drawPTree}
+
+Não foi desenvolvida uma definição para a função |drawPTree|.
+
+\begin{code}
 drawPTree = undefined
 \end{code}
 
+Verificam-se com isto as propriedades \emph{QuickCheck} relativas a este problema, como se pode verificar de seguida:
+
+\begin{verbatim}
+*Main> quickCheck (prop4a 14)
++++ OK, passed 1 tests.
+*Main> quickCheck (prop4b 14)
++++ OK, passed 1 tests.
+\end{verbatim}
+
+
 \subsection*{Problema 5}
 
+As funções que se pretendem ver desenvolvidas para a primeira alínea deste enunciado conferem funcionalidades essenciais aos mónades, evidenciando as suas propriedades de multiplicação, no caso da função |muB| e de unidade, no caso da função |singletonbag| (ou |u|).
+
+A primeira será uma função polimórfica que permitirá reduzir em uma unidade o nível de monadificação a uma entrada que esteja num nível de monadificação igual ou superior a 2, ou seja, o seu tipo poderá ser dado por:
+
+\begin{eqnarray*}
+\xymatrix@@C=3cm{
+    |T A|
+&
+    |T(T A)|
+            \ar[l]^-{|muB|}
+}
+\end{eqnarray*}
+
+Neste caso, está em uso o mónade |Bag| e com as reduções dos níveis de monadificação será necessário ajustar os valores de multiplicidade do conteúdo da |Bag| resultante. A função |muB| fica então definida por:
+
 \begin{code}
-singletonbag = undefined
-muB = undefined
-dist = undefined
+-- mulMults :: ([(a, Int)], Int) -> [(a, Int)]
+-- (unB . (fmap unB)) b3 == map (unB >< id) (unB b3)
+mulMults ([], c) = []
+mulMults (((a, b) : t), c) = (a, b * c) : (mulMults (t, c))
+muB = B . concat . (map mulMults) . map (unB >< id) . unB
 \end{code}
+
+A ação da função |unB| remove a monadificação do seu argumento, o que coloca os pares (Elemento, Multiplicidade) exatamente na forma de tuplo. Desta forma será possível utilizar os valores de multiplicidade dos elementos menos aninhados, os segundos elementos dos pares, que serão relevantes para a redução do nível de monadificação.
+
+\begin{eqnarray*}
+\xymatrix@@C=3cm{
+    |[(a, Int)]|
+&
+    |Bag a|
+            \ar[l]^-{|unB|}
+}
+\end{eqnarray*}
+
+De seguida será necessário tornar utilizáveis os valores de multiplicidade dos elementos do nível seguinte de aninhamento. Para isto, ao resultado da aplicação de |unB|, uma lista de tuplos (pares (Elemento, Multiplicidade)), será necessário remover a monadificação aos seus elementos (os primeiros elementos dos tuplos da lista que resultado da aplicação de |unB|), "expondo" as suas multiplicidades, por ação de |unB|, e deixando intacta a multiplicidade do nível superior (os segundos elementos dos tuplos da lista anteriormente mencionada), por ação de |id|. Estas funções serão mapeadas e aplicadas paralelamente a cada elemento da lista e ficam desta forma utilizáveis todos os valores de multiplicidade necessários para o processo de redução do nível de monadificação.
+
+\begin{eqnarray*}
+\xymatrix@@C=3cm{
+    |[([(a, Int)], Int)]|
+&
+    |[(Bag a, Int)]|
+            \ar[l]^-{|map (unB >< id)|}
+}
+\end{eqnarray*}
+
+Será agora necessário remover a multiplicidade menos aninhada, e no entanto garantir a manutenção da correção das multiplicidades no mónade Bag resultante. Para isto, por ação de multiplicação das multiplicidades é obtido esse efeito. Para isto é usada a função |mulMults|, que será mapeada a cada elemento da lista resultante anterior. Para isto pretendemos que o 2º elemento dos tuplos menos aninhados sejam multiplicados pelo 2º elemento do 1º elemento dos tuplos menos aninhados, que por sua vez, como se pode inferir e verificar pelos exemplos aqui explicitados, será um tuplo também, que se apresenta na forma (Elemento, Multiplicidade). A lista de resultado ignora por completo o 2º elemento do tuplo principal, o que está de acordo com o pretendido.
+
+\begin{eqnarray*}
+\xymatrix@@C=3cm{
+    |[[(a, b)]]|
+&
+    |[([(a, b)], b)]|
+            \ar[l]^-{|map mulMults|}
+}
+\end{eqnarray*}
+
+À lista de listas resultante será aplicada a função |concat|, que permitirá unificar os conteúdos das listas interiores e a partir da lista resultante é construído o mónade resultado, por ação de |B|, obtendo-se assim um mónade num grau imediatamente inferior de monadificação.
+
+Segue-se a função que permite exibir a propriedade de unidade. A já mencionada |singletonbag| ou |u| ``encapsula" valores de entrada, conferindo-lhes um grau superior (em uma unidade) de monadificação. Neste caso está em uso o mónade |Bag| e, assim sendo, a função |singletonbag| poderá tomar a definição que se segue. A um único elemento que se pretenda colocar num |Bag|, será necessário colocá-lo na forma adequada para que possa ser monadificado por ação de |B|, ou seja, numa lista de tuplos de 2 elementos, já que B é do tipo:
+
+\begin{eqnarray*}
+\xymatrix@@C=3cm{
+    |Bag a|
+&
+    |[(a, Int)]|
+            \ar[l]^-{|B|}
+}
+\end{eqnarray*}
+
+Para qualquer elemento que se pretenda encapsular, o valor da sua multiciplidade será de 1. Dessa forma o tuplo será algo como o par (Elemento, 1). Para este efeito entra em ação a função |s\_tuple|, que simplesmente forma o par adequado.
+
+\begin{eqnarray*}
+\xymatrix@@C=3cm{
+    |(a, 1)|
+&
+    |a|
+            \ar[l]^-{|s_tuple|}
+}
+\end{eqnarray*}
+
+Obtendo o par adequado, será agora apenas necessário colocá-lo numa lista, o que será efetuado pela função |singl|.
+
+\xymatrix@@C=3cm{
+    |[a]|
+&
+    |a|
+            \ar[l]^-{|singl|}
+}
+\end{eqnarray*}
+
+À lista de saída da aplicação da função |singl| será apenas necessário conferir-lhe monadificação, pelo que é novamente utilizado |B|.
+
+\begin{code}
+s_tuple a = (a, 1)
+singletonbag = B . singl . s_tuple
+\end{code}
+
+Resta apenas a função |dist|, que para um qualquer |Bag| apresenta as percentagens de distribuição dos seus conteúdos, recorrendo ao mónade |Dist|.
+
+\xymatrix@@C=3cm{
+    |Dist a|
+&
+    |Bag a|
+            \ar[l]^-{|dist|}
+}
+\end{eqnarray*}
+
+Com base na composição de funções, a função |dist| apresenta a definição do código que se segue. Por ação da função |unB|, a partir do mónade de entrada obtém-se a lista de pares (Elemento, Int), sendo o valor inteiro a sua multiplicidade do elemento no |Bag| que acabou de ser removido. A cada um desses pares, com recurso ao mapeamento da função |repMarbles|, é obtida uma lista, que representa explicitamente a ideia definida em cada par (p.e. no caso do elemento ser uma |Marble|, seria possível um dos elementos da lista original ser algo como (Blue, 3), que por ação da função |repMarbles|, dá origem a [Blue, Blue, Blue]), utilizando a versão \textit{uncurried} da função pré-definida |replicate| e o par (Marble,Int) com a ordem inversa por ação da função |swap|, ou seja, um par (Int, Marble). As listas aninhadas são de seguida concatenadas e é aplicada a função |uniform|, que obterá a distribuição e os valores de probabilidade adequados.
+
+\begin{code}
+repMarbles = uncurry replicate . swap
+dist = uniform . concat . map repMarbles . unB
+\end{code}
+
+A segunda alínea deste problema pretende apenas demonstrar a correção das funções desenvolvidas, por verificação da validade das propriedades de multiplicação (à esquerda) e unidade (à direita) já mencionadas e que são referidas nas notas teóricas desta unidade curricular.
+
+\begin{figure}[!ht]
+\begin{minipage}[t]{.5\textwidth}
+\xymatrix@@C=2.5cm@@R=2cm{
+	|T(T A)|
+		\ar[d]^-{|muB|}
+&
+	|T(T(T A)|
+		\ar[l]^-{|muB|}
+        \ar[d]^-{|T muB|}
+\\
+	|T A|
+&
+	|T(T A)|
+		\ar[l]^-{|muB|}
+}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}[t]{.5\textwidth}
+\xymatrix@@C=3.4cm@@R=2cm{
+	|T(T A)|
+		\ar[d]^-{|muB|}
+&
+	|T A|
+		\ar[l]^-{|u|}
+        \ar[d]^-{|T u|}
+        \ar[dl]^-{|id|}
+\\
+	|T A|
+&
+	|T(T A)|
+		\ar[l]^-{|muB|}
+}
+\end{minipage}
+\end{figure}
+
+\pagebreak
+Com tudo isto, os resultados dos testes |test5a| e |test5b| são os seguintes:
+\begin{verbatim}
+*Main> quickCheck (bagOfMarbles == muB (return bagOfMarbles))
++++ OK, passed 1 tests.
+*Main> quickCheck ((muB . muB) b3 == (muB .fmap muB) b3)
++++ OK, passed 1 tests.
+\end{verbatim}
+
+
+
 
 \section{Como exprimir cálculos e diagramas em LaTeX/lhs2tex}
 Estudar o texto fonte deste trabalho para obter o efeito:\footnote{Exemplos tirados de \cite{Ol18}.} 

@@ -1,0 +1,15 @@
+\BOOKMARK [1][-]{section.1}{Pre\342mbulo}{}% 1
+\BOOKMARK [1][-]{section.2}{Documenta\347\343o}{}% 2
+\BOOKMARK [1][-]{section.3}{Como realizar o trabalho}{}% 3
+\BOOKMARK [1][-]{appendix.A}{M\363nade para probabilidades e estat\355stica}{}% 4
+\BOOKMARK [1][-]{appendix.B}{Defini\347\365es auxiliares}{}% 5
+\BOOKMARK [1][-]{appendix.C}{Solu\347\365es dos alunos}{}% 6
+\BOOKMARK [2][-]{subsection.C.1}{allTransactions}{appendix.C}% 7
+\BOOKMARK [2][-]{subsection.C.2}{Ledger}{appendix.C}% 8
+\BOOKMARK [2][-]{subsection.C.3}{isValidMagicNr}{appendix.C}% 9
+\BOOKMARK [2][-]{subsection.C.4}{rotateQTree}{appendix.C}% 10
+\BOOKMARK [2][-]{subsection.C.5}{scaleQTree}{appendix.C}% 11
+\BOOKMARK [2][-]{subsection.C.6}{invertQTree}{appendix.C}% 12
+\BOOKMARK [2][-]{subsection.C.7}{compressQTree}{appendix.C}% 13
+\BOOKMARK [2][-]{subsection.C.8}{outlineQTree}{appendix.C}% 14
+\BOOKMARK [1][-]{appendix.D}{Como exprimir c\341lculos e diagramas em LaTeX/lhs2tex}{}% 15
